@@ -10,11 +10,15 @@ type Data = {
 
 export default async function thumb(
     req: Request,
-    res: Response<Buffer>
+    res: Response<Buffer | string>
 ) {
     const root = process.env.ROOT!
 
-    let contents = await fs.readFile(path.join(META_PATH, req.query.dir as string, req.query.file as string, "thumb.png"))
-    res.setHeader('Content-Type', 'image/jpg')
-    res.status(200).send(contents)
+    try {
+        let contents = await fs.readFile(path.join(META_PATH, req.query.dir as string, req.query.file as string, "thumb.png"))
+        res.setHeader('Content-Type', 'image/jpg')
+        res.status(200).send(contents)
+    } catch (e) {
+        res.status(404).send("Not found")
+    }
 }

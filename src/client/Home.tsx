@@ -51,9 +51,9 @@ export default function Home() {
   const upButton = path.length > 0 ? <span onClick={up}> .. </span> : null
 
   const folders = dir.files.filter((f) => f.type === 'directory')
-  const comics = dir.files.filter((f) => f.type === 'comic')
+  const comics = dir.files.filter((f) => f.type === 'comic' && f.valid)
   const divider = folders.length > 0 && comics.length > 0 ? <div className={styles.divider}></div> : null
-
+  console.log({ comics })
   return (
     <>
       <main className={styles.main}>
