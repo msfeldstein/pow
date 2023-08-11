@@ -69,7 +69,7 @@ export async function recursivelyFetchFiles(curPath: string, name: string): Prom
     return directory
 }
 
-export default async function handler(
+export default async function reindex(
     req: Request,
     res: Response<Data>
 ) {
