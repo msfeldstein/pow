@@ -34,7 +34,7 @@ export default async function prep(
     const absFilePath = path.join(MAIN_PATH, file)
     const fileContents = await fs.readFile(absFilePath)
     const archive = await Archive.init(Uint8Array.from(fileContents))
-    let names = archive.getFilenames()
+    let names = archive.getFilenames("jpg")
     const extracted = archive.extractFiles(names)
 
 

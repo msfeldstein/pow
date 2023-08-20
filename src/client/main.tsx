@@ -9,6 +9,7 @@ import {
 
 import Home from "./Home";
 import View from "./View";
+import BookView from "./Book";
 
 
 const router = createBrowserRouter([
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: "/view",
     element: <View />,
+  },
+  {
+    path: "/book",
+    element: <BookView />
   }
 ]);
 

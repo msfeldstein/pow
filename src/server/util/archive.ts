@@ -31,20 +31,22 @@ export class Archive {
         return archive
     }
 
-    getFilenames(): string[] {
+    getFilenames(type: string): string[] {
         let names: string[] = []
         if (this.type == ArchiveType.ZIP) {
             const zipEntries = this.unzip!.getEntries()
             names = zipEntries.filter(ze => !ze.isDirectory).map(ze => ze.entryName)
+            console.log("Entry", zipEntries.map(ze => ze.entryName))
         } else {
             const list = this.unrar!.getFileList()
             for (let fileHeader of list.fileHeaders) {
+                console.log("Foudn", fileHeader.name)
                 if (fileHeader.flags.directory) continue
                 names.push(fileHeader.name)
             }
         }
 
-        return names.sort().filter(name => name.toLowerCase().endsWith("jpg"))
+        return names.sort().filter(name => name.toLowerCase().endsWith(type))
     }
 
     extract(filename: string): Uint8Array {

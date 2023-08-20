@@ -38,16 +38,46 @@ export async function recursivelyFetchFiles(curPath: string, name: string): Prom
         let stat = await fs.stat(absFilePath)
         if (stat.isDirectory() && !file.startsWith("__")) {
             directory.files.push(await recursivelyFetchFiles(filePath, file))
+        } else if (file.toLowerCase().endsWith(".epub")) {
+            let valid = true
+            try {
+                const fileContents = await fs.readFile(absFilePath)
+                const buffer = Uint8Array.from(fileContents)
+                console.log("BUFFER", buffer.byteLength)
+                const archive = await Archive.init(buffer)
+                const names = archive.getFilenames("")
+                const coverPath = names.find(n => n.includes("cover"))
+                console.log({ names, coverPath })
+                if (!coverPath) {
+                    valid = false
+                    console.log("NO COVER FOR", file)
+                } else {
+
+                    const firstPage = archive.extract(coverPath)
+                    // Write out the full size image and a thumbnail
+                    const comicMetaPath = path.join(thumbsPath, file)
+                    if (!fsDirect.existsSync(comicMetaPath)) {
+                        await fs.mkdir(comicMetaPath)
+                    }
+                    await fs.writeFile(path.join(comicMetaPath, "fullsize.jpg"), firstPage)
+                    await sharp(firstPage).resize(320).toFile(path.join(comicMetaPath, "thumb.png"))
+                }
+
+            } catch (e: any) {
+                valid = false
+                console.error("Error unzipping", e, file)
+                rollbar.error("Error unzipping", e, { file })
+            }
+            directory.files.push({ type: "book", name: file, valid })
         } else if (file.toLowerCase().endsWith(".cbz") || file.toLocaleLowerCase().endsWith(".cbr")) {
             console.log("handling file", file)
             let valid = true
             let numPages = 0
             try {
-
                 const fileContents = await fs.readFile(absFilePath)
                 const buffer = Uint8Array.from(fileContents)
                 const archive = await Archive.init(buffer)
-                const names = archive.getFilenames()
+                const names = archive.getFilenames("jpg")
                 numPages = names.length
                 const firstPage = archive.extract(names[0])
                 // Write out the full size image and a thumbnail
