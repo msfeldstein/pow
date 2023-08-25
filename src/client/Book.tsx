@@ -38,7 +38,10 @@ export default function BookView() {
 
     return (
         <div style={{ height: '100vh' }}>
-            <div style={{ color: "red" }} onClick={sendToKindle}>{kindleLabel}</div>
+            <div className={styles.topbar}>
+                <div style={{ color: "red" }} onClick={sendToKindle}>{kindleLabel}</div>
+                <div style={{ color: "blue" }} ><a download={file} href={`/api/staticRequest?file=${file}`}>Download</a></div>
+            </div>
             <ReactReader
                 location={location}
                 locationChanged={locationChanged}

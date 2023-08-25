@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRef } from 'react'
 import { useSpring, animated } from '@react-spring/web'
 import { useGesture } from '@use-gesture/react'
+import { GridLoader } from 'react-spinners'
 
 function Page({ file, index, x }: { file: string, index: number, x: number }) {
     return <div className={styles.carouselItem} style={{ left: x }} key={index}>
@@ -32,15 +33,12 @@ function Overlay({ file, index, hideOverlay, visible }: { file: string, index: n
     const title = convertFilePathToTitle(file)
     const goBack = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         e.stopPropagation()
-        const path = file.split("/").slice(0, -1).join("")
+        const path = file.split("/").slice(0, -1).join("/")
         const newLoc = window.location
         newLoc.href = "/#" + path
-        console.log(newLoc)
-        debugger
 
     }, [])
     let className = [styles.overlay, !visible ? styles.hidden : null].join(" ")
-    console.log({ className, visible })
     return <div className={className} onClick={hideOverlay}>
         <div className={styles.overlayHeader}>
             <div className={styles.overlayBack} onClick={goBack}></div>
@@ -54,7 +52,7 @@ function Carousel({ file, numPages }: { file: string, numPages: number }) {
     const [showOverlay, setShowOverlay] = useState(false)
     const hideOverlay = useCallback(() => setShowOverlay(false), [])
     const savedPage = localStorage.getItem(currentPageKey(file))
-    const [index, setIndex] = useState(savedPage ? parseInt(savedPage) : 0)
+    const [index, setIndex] = useState(savedPage ? Math.max(0, parseInt(savedPage)) : 0)
     useEffect(() => {
         localStorage.setItem(currentPageKey(file), index.toString())
     }, [index])
@@ -133,19 +131,27 @@ function Carousel({ file, numPages }: { file: string, numPages: number }) {
     )
 }
 
+function Spinner() {
+    return <div className={styles.spinner}>
+        <GridLoader color='white' />
+        Prepping File
+    </div>
+}
+
 export default function View() {
+    console.log("RENDER VIEW")
     const [metadata, setMetadata] = useState<{ numPages: number } | null>(null)
-    const [path, setPath] = useState<string[]>([])
     useEffect(function fetchDirectory() {
         const file = new URL(document.location.href).searchParams.get('file')
+        console.log("Fetching prep")
         fetch(`/api/prep?file=${file}`)
             .then((res) => res.json())
-            .then((data) => setMetadata(data))
+            .then((data) => { console.log("Got prep", data); setMetadata(data) })
             .catch((err) => console.error(err))
     }, [])
 
     if (!metadata) {
-        return <div>Loading</div>
+        return <Spinner />
     }
 
     const file = new URL(document.location.href).searchParams.get('file')

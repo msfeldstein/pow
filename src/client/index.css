@@ -3,6 +3,6 @@ body {
   margin: 0;
   height: 100%;
   background-color: #1e1e1e;
-  touch-action: none;
+  /* touch-action: none; */
   user-select: none;
 }

@@ -9,7 +9,6 @@ import sendToKindle from "./routes/sendToKindle";
 import staticRequest from "./routes/staticRequest";
 
 const app = express();
-// ViteExpress.config({ mode: "production" })
 
 app.get("/api/reindex", reindex)
 app.get("/api/prep", prep)

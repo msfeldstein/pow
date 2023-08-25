@@ -2,6 +2,10 @@ import styles from './Home.module.css'
 import { Book, Comic, Directory } from '../types'
 import { useEffect, useState } from 'react'
 
+function pathFromHash() {
+  return window.location.hash.substring(1).split('/').map(part => decodeURIComponent(part)) || []
+}
+
 export default function Home() {
   const [db, setDb] = useState<Directory | null>(null)
   const [path, setPath] = useState<string[]>([])
@@ -9,20 +13,17 @@ export default function Home() {
   // Grab the initial location from the hash
   useEffect(() => {
     if (window.location.hash.length < 2) return
-    const initialPath = window.location.hash.substring(1).split('/').map(part => decodeURIComponent(part)) || []
+    const initialPath = pathFromHash()
     setPath(initialPath)
   }, [])
 
   // Update the location as the hash changes (pressing the back button)
   useEffect(() => {
     const hashChange = () => {
-      console.log("HASH CHANGE")
-      setPath(window.location.hash.substring(1).split('/').map(part => decodeURIComponent(part)) || [])
+      setPath(pathFromHash())
     }
-    console.log("Adding hash change")
     window.addEventListener("hashchange", hashChange)
     return () => {
-      console.log("REMOVE LISTENER")
       window.removeEventListener('hashchange', hashChange)
     }
   }, [])

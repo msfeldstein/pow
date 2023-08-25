@@ -5,6 +5,7 @@ import sharp from 'sharp'
 import { Directory } from '../../types'
 import { MAIN_PATH, META_PATH } from '../../paths'
 import { Archive } from '../util/archive'
+import epub from 'epubjs'
 import { Request, Response } from 'express'
 
 // include and initialize the rollbar library with your access token
@@ -43,7 +44,7 @@ export async function recursivelyFetchFiles(curPath: string, name: string): Prom
             try {
                 const fileContents = await fs.readFile(absFilePath)
                 const buffer = Uint8Array.from(fileContents)
-                console.log("BUFFER", buffer.byteLength)
+
                 const archive = await Archive.init(buffer)
                 const names = archive.getFilenames("")
                 const coverPath = names.find(n => n.includes("cover"))

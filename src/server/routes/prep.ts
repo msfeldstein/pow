@@ -20,15 +20,16 @@ export default async function prep(
 ) {
     const file = req.query.file as string
 
-
     const comicMetaPath = path.join(META_PATH, file)
     const comicPagesPath = path.join(comicMetaPath, '__PAGES__')
     if (!fsDirect.existsSync(comicPagesPath)) {
         await fs.mkdir(comicPagesPath)
     } else {
         const existingFiles = await fs.readdir(comicPagesPath)
-        res.status(200).send({ success: true, numPages: existingFiles.length })
-        return
+        if (existingFiles.includes("COMPLETE")) {
+            res.status(200).send({ success: true, numPages: existingFiles.length - 1 })
+            return
+        }
     }
 
     const absFilePath = path.join(MAIN_PATH, file)
@@ -72,6 +73,6 @@ export default async function prep(
     const strip = sharp({ create: { width: scaledWidth, height: scaledHeight, channels: 3, background: { r: 255, g: 255, b: 255 } } })
     strip.composite(toComposite)
     fs.writeFile(path.join(comicMetaPath, `strip.jpg`), await strip.jpeg().toBuffer())
-
+    fs.writeFile(path.join(comicPagesPath, "COMPLETE"), "")
     res.status(200).send({ success: true, numPages: extracted.length })
 }
