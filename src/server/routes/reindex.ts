@@ -21,23 +21,25 @@ type Data = {
     contents: Directory
 }
 
-const mainRoot = MAIN_PATH
-const metaRoot = META_PATH
-
 export async function recursivelyFetchFiles(curPath: string, name: string): Promise<Directory> {
-    const absPath = path.join(mainRoot, curPath)
+    const absPath = path.join(MAIN_PATH, curPath)
     console.log("Recursing to directory", absPath)
     let files = await fs.readdir(absPath)
+    console.log("Files in directory", files, "isDirectory", fsDirect.statSync(absPath).isDirectory())
     let directory: Directory = { name, type: "directory", files: [] }
-    const thumbsPath = path.join(metaRoot, curPath)
+    const thumbsPath = path.join(META_PATH, curPath)
     if (!fsDirect.existsSync(thumbsPath)) {
-        await fs.mkdir(thumbsPath)
+        console.log("lets make thumgs", thumbsPath)
+        await fs.mkdir(thumbsPath, { recursive: true })
     }
+    console.log("DONE")
     for (let file of files) {
+        console.log("Checkign", file)
         const filePath = path.join(curPath, file)
-        const absFilePath = path.join(mainRoot, filePath)
+        const absFilePath = path.join(MAIN_PATH, filePath)
         let stat = await fs.stat(absFilePath)
-        if (stat.isDirectory() && !file.startsWith("__")) {
+        if (stat.isDirectory() && !file.startsWith("__") && !file.startsWith(".")) {
+            console.log("Lets recursee")
             directory.files.push(await recursivelyFetchFiles(filePath, file))
         } else if (file.toLowerCase().endsWith(".epub")) {
             let valid = true
@@ -106,6 +108,6 @@ export default async function reindex(
 ) {
     let contents = await recursivelyFetchFiles("", "~")
 
-    await fs.writeFile(process.env.ROOT! + "/db.json", JSON.stringify(contents, null, 2))
+    await fs.writeFile(path.join(META_PATH, "db.json"), JSON.stringify(contents, null, 2))
     res.status(200).json({ contents })
 }

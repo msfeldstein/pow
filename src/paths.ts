@@ -7,4 +7,4 @@ if (!process.env.ROOT) {
 }
 
 export const MAIN_PATH = process.env.ROOT!;
-export const META_PATH = path.join(MAIN_PATH, "__META__");
+export const META_PATH = process.env.META!;
