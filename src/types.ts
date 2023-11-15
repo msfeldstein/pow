@@ -16,3 +16,5 @@ export type Directory = {
     type: "directory"
     files: (Directory | Comic | Book)[]
 }
+
+export type File = Comic | Book | Directory
