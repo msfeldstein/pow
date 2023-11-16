@@ -11,6 +11,7 @@ import fs from "fs";
 import { MAIN_PATH } from "../paths";
 import path from "path";
 
+console.log("Im at least running")
 const app = express();
 
 app.get("/api/reindex", reindex)
@@ -21,16 +22,16 @@ app.get("/api/page", page)
 app.get("/api/sendToKindle", sendToKindle)
 app.get("/api/staticRequest", staticRequest)
 
-fs.watch(MAIN_PATH, { recursive: true }, (e, filename) => {
-  if (!filename) return
-  if (e === "rename") {
-    if (fs.existsSync(path.join(MAIN_PATH, filename))) {
-      console.log("CREATE", filename)
-    } else {
-      console.log("DELETE", filename)
-    }
-  }
-})
+// fs.watch(MAIN_PATH, { recursive: true }, (e, filename) => {
+//   if (!filename) return
+//   if (e === "rename") {
+//     if (fs.existsSync(path.join(MAIN_PATH, filename))) {
+//       console.log("CREATE", filename)
+//     } else {
+//       console.log("DELETE", filename)
+//     }
+//   }
+// })
 
 ViteExpress.listen(app, 3000, () =>
   console.log("Server is listening on port 3000...")
