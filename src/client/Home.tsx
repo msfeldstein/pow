@@ -44,9 +44,9 @@ export default function Home() {
   function nav(file: Directory | Comic | Book) {
     const newPath = [...path, file.name]
     if (file.type === 'comic') {
-      window.location.href = `/view?file=${newPath.join('/')}`
+      window.location.href = `/view?file=${encodeURIComponent(newPath.join('/'))}`
     } else if (file.type === 'book') {
-      window.location.href = `/book?file=${newPath.join('/')}`
+      window.location.href = `/book?file=${encodeURIComponent(newPath.join('/'))}`
     } else {
       setPath(newPath)
       window.location.hash = newPath.join('/')
@@ -89,12 +89,12 @@ export default function Home() {
         {divider}
         <div className={styles.CardGrid}>
           {books.map((file) => {
-            return (<div key={file.name} className={styles.Card} onClick={e => nav(file)}><img alt="" width="200" src={`/api/thumb?dir=${[...path].join("/")}&file=${file.name}`} />{file.name}</div>)
+            return (<div key={file.name} className={styles.Card} onClick={e => nav(file)}><img alt="" width="200" src={`/api/thumb?dir=${encodeURIComponent([...path].join("/"))}&file=${encodeURIComponent(file.name)}`} />{file.name}</div>)
           })}
         </div>
         <div className={styles.CardGrid}>
           {comics.map((file) => {
-            return (<div key={file.name} className={styles.Card} onClick={e => nav(file)}><img alt="" width="200" src={`/api/thumb?dir=${[...path].join("/")}&file=${file.name}`} /></div>)
+            return (<div key={file.name} className={styles.Card} onClick={e => nav(file)}><img alt="" width="200" src={`/api/thumb?dir=${encodeURIComponent([...path].join("/"))}&file=${encodeURIComponent(file.name)}`} /></div>)
           })}
         </div>
       </main>

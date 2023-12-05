@@ -3,7 +3,6 @@ FROM node:latest as builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
-RUN mkdir /pow-meta
 COPY . .
 RUN npm run build
 

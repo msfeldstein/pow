@@ -7,7 +7,7 @@ import { GridLoader } from 'react-spinners'
 
 function Page({ file, index, x }: { file: string, index: number, x: number }) {
     return <div className={styles.carouselItem} style={{ left: x }} key={index}>
-        <img alt="" className={styles.carouselItemImage} src={`/api/page?file=${file}&page=${index}`} />
+        <img alt="" className={styles.carouselItemImage} src={`/api/page?file=${encodeURIComponent(file)}&page=${index}`} />
         <div className={styles.carouselItemOverlay}>{index}</div>
     </div>
 }
@@ -144,7 +144,7 @@ export default function View() {
     useEffect(function fetchDirectory() {
         const file = new URL(document.location.href).searchParams.get('file')
         console.log("Fetching prep")
-        fetch(`/api/prep?file=${file}`)
+        fetch(`/api/prep?file=${encodeURIComponent(file!)}`)
             .then((res) => res.json())
             .then((data) => { console.log("Got prep", data); setMetadata(data) })
             .catch((err) => console.error(err))
