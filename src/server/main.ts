@@ -11,7 +11,7 @@ import fs from "fs";
 import { MAIN_PATH } from "../paths";
 import path from "path";
 
-console.log("Im at least running")
+console.log("Im at least running22")
 const app = express();
 
 app.get("/api/reindex", reindex)
