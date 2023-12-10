@@ -7,6 +7,7 @@ import { Archive } from "./archive"
 import sharp from "sharp"
 
 export async function recursivelyFetchFiles(curPath: string, name: string): Promise<Directory> {
+    const existingDB = JSON.parse((await fs.readFile(path.join(META_PATH, "db.json"))).toString())
     const absPath = path.join(MAIN_PATH, curPath)
     console.log("Recursing to directory", absPath)
     let files = await fs.readdir(absPath)
@@ -59,6 +60,12 @@ export async function recursivelyFetchFiles(curPath: string, name: string): Prom
             let valid = true
             let numPages = 0
             try {
+                const comicMetaPath = path.join(thumbsPath, file)
+                const coverPath = path.join(comicMetaPath, "fullsize.jpg")
+                if (fsDirect.existsSync(coverPath)) {
+                    console.log("Skipping", file, "because it already has a cover")
+                    continue
+                }
                 const fileContents = await fs.readFile(absFilePath)
                 const buffer = Uint8Array.from(fileContents)
                 const archive = await Archive.init(buffer)
@@ -66,11 +73,10 @@ export async function recursivelyFetchFiles(curPath: string, name: string): Prom
                 numPages = names.length
                 const firstPage = archive.extract(names[0])
                 // Write out the full size image and a thumbnail
-                const comicMetaPath = path.join(thumbsPath, file)
                 if (!fsDirect.existsSync(comicMetaPath)) {
                     await fs.mkdir(comicMetaPath)
                 }
-                await fs.writeFile(path.join(comicMetaPath, "fullsize.jpg"), firstPage)
+                await fs.writeFile(coverPath, firstPage)
                 await sharp(firstPage).resize(320).toFile(path.join(comicMetaPath, "thumb.png"))
 
             } catch (e: any) {
