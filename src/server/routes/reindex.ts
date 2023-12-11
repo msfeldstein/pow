@@ -9,8 +9,12 @@ type Data = {
 
 export default async function reindex(
     _req: Request,
-    res: Response<Data>
+    res: Response<Data | string>
 ) {
     const contents = await writeIndex()
+    if (!contents) {
+        res.status(500).send("Error writing index")
+        return
+    }
     res.status(200).json({ contents })
 }

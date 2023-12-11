@@ -9,6 +9,7 @@ import sendToKindle from "./routes/sendToKindle";
 import staticRequest from "./routes/staticRequest";
 
 const app = express();
+console.log("VERSION 1")
 
 app.get("/api/reindex", reindex)
 app.get("/api/prep", prep)
