@@ -6,24 +6,33 @@ import fsDirect from 'fs'
 import { Archive } from "./archive"
 import sharp from "sharp"
 
-export async function recursivelyFetchFiles(curPath: string, name: string): Promise<Directory> {
-    const existingDB = JSON.parse((await fs.readFile(path.join(META_PATH, "db.json"))).toString())
+const IGNORED = [".DS_Store", "__MACOSX", "@eaDir"]
+
+const dbgLog = function (msg: any, optionalParams: any) {
+    console.log(msg, optionalParams)
+}
+
+export async function recursivelyFetchFiles(curPath: string, name: string): Promise<Directory | null> {
+    if (IGNORED.includes(name)) return null
     const absPath = path.join(MAIN_PATH, curPath)
-    console.log("Recursing to directory", absPath)
+    dbgLog("Recursing to directory", absPath)
     let files = await fs.readdir(absPath)
-    console.log("Files in directory", files, "isDirectory", fsDirect.statSync(absPath).isDirectory())
+    dbgLog("Files in directory", {
+        files, isDirectory: fsDirect.statSync(absPath).isDirectory()
+    })
     let directory: Directory = { name, type: "directory", files: [] }
     const thumbsPath = path.join(META_PATH, curPath)
     if (!fsDirect.existsSync(thumbsPath)) {
         await fs.mkdir(thumbsPath, { recursive: true })
     }
     for (let file of files) {
-        console.log("Checkign", file)
+        dbgLog("Checkign", file)
         const filePath = path.join(curPath, file)
         const absFilePath = path.join(MAIN_PATH, filePath)
         let stat = await fs.stat(absFilePath)
         if (stat.isDirectory() && !file.startsWith("__") && !file.startsWith(".")) {
-            directory.files.push(await recursivelyFetchFiles(filePath, file))
+            const subdirectory = await recursivelyFetchFiles(filePath, file)
+            if (subdirectory) directory.files.push(subdirectory)
         } else if (file.toLowerCase().endsWith(".epub")) {
             let valid = true
             try {
@@ -33,10 +42,9 @@ export async function recursivelyFetchFiles(curPath: string, name: string): Prom
                 const archive = await Archive.init(buffer)
                 const names = archive.getFilenames("")
                 const coverPath = names.find(n => n.includes("cover"))
-                console.log({ names, coverPath })
                 if (!coverPath) {
                     valid = false
-                    console.log("NO COVER FOR", file)
+                    dbgLog("NO COVER FOR", file)
                 } else {
 
                     const firstPage = archive.extract(coverPath)
@@ -56,16 +64,12 @@ export async function recursivelyFetchFiles(curPath: string, name: string): Prom
             }
             directory.files.push({ type: "book", name: file, valid })
         } else if (file.toLowerCase().endsWith(".cbz") || file.toLocaleLowerCase().endsWith(".cbr")) {
-            console.log("handling file", file)
+            dbgLog("handling file", file)
             let valid = true
             let numPages = 0
             try {
                 const comicMetaPath = path.join(thumbsPath, file)
                 const coverPath = path.join(comicMetaPath, "fullsize.jpg")
-                if (fsDirect.existsSync(coverPath)) {
-                    console.log("Skipping", file, "because it already has a cover")
-                    continue
-                }
                 const fileContents = await fs.readFile(absFilePath)
                 const buffer = Uint8Array.from(fileContents)
                 const archive = await Archive.init(buffer)

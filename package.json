@@ -6,7 +6,8 @@
     "dev": "nodemon src/server/main.ts -w src/server",
     "start": "NODE_ENV=production ts-node src/server/main.ts",
     "build": "vite build",
-    "docker-test": "docker run --rm -it $(docker build -q .)"
+    "docker-test": "docker run --rm -it $(docker build -q .)",
+    "reindex": "ts-node src/server/actions/reindex.ts"
   },
   "dependencies": {
     "@react-spring/web": "^9.7.3",
