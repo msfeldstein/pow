@@ -11,6 +11,17 @@ import Home from "./Home";
 import View from "./View";
 import BookView from "./Book";
 
+function adjustHeight() {
+  var vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+// Run the function when the page is loaded
+window.addEventListener('load', adjustHeight);
+
+// Run the function when the window is resized
+window.addEventListener('resize', adjustHeight);
+
 
 const router = createBrowserRouter([
   {
