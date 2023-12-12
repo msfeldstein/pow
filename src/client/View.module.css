@@ -88,6 +88,10 @@
     background-repeat: no-repeat;
 }
 
+.fullscreenIcon {
+    padding: 16px;
+}
+
 
 .spinner {
     margin: auto;
