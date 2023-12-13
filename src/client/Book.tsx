@@ -22,24 +22,10 @@ export default function BookView() {
         "sent": "Sent to kindle",
         "error": "Error sending to kindle"
     }[sendState]
-    async function sendToKindle() {
-        setSendState("sending")
-        try {
-            const res = await fetch(`/api/sendToKindle?file=${file}`).then(r => r.json())
-            if (res.success) {
-                setSendState("sent")
-            } else {
-                setSendState("error")
-            }
-        } catch {
-            setSendState("error")
-        }
-    }
 
     return (
         <div style={{ height: '100vh' }}>
             <div className={styles.topbar}>
-                <div style={{ color: "red" }} onClick={sendToKindle}>{kindleLabel}</div>
                 <div style={{ color: "blue" }} ><a download={file} href={`/api/staticRequest?file=${file}`}>Download</a></div>
             </div>
             <ReactReader

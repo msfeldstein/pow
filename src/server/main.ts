@@ -5,7 +5,6 @@ import prep from "./routes/prep";
 import list from "./routes/list";
 import thumb from "./routes/thumb";
 import page from "./routes/page";
-import sendToKindle from "./routes/sendToKindle";
 import staticRequest from "./routes/staticRequest";
 
 const app = express();
@@ -16,7 +15,6 @@ app.get("/api/prep", prep)
 app.get("/api/list", list)
 app.get("/api/thumb", thumb)
 app.get("/api/page", page)
-app.get("/api/sendToKindle", sendToKindle)
 app.get("/api/staticRequest", staticRequest)
 
 // fs.watch(MAIN_PATH, { recursive: true }, (e, filename) => {

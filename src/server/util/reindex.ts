@@ -60,7 +60,6 @@ export async function recursivelyFetchFiles(curPath: string, name: string): Prom
             } catch (e: any) {
                 valid = false
                 console.error("Error unzipping", e, file)
-                // rollbar.error("Error unzipping", e, { file })
             }
             directory.files.push({ type: "book", name: file, valid })
         } else if (file.toLowerCase().endsWith(".cbz") || file.toLocaleLowerCase().endsWith(".cbr")) {
@@ -86,7 +85,6 @@ export async function recursivelyFetchFiles(curPath: string, name: string): Prom
             } catch (e: any) {
                 valid = false
                 console.error("Error unzipping", e, file)
-                // rollbar.error("Error unzipping", e, { file })
             }
             directory.files.push({ type: "comic", name: file, valid, numPages })
         }

@@ -36,11 +36,9 @@ export class Archive {
         if (this.type == ArchiveType.ZIP) {
             const zipEntries = this.unzip!.getEntries()
             names = zipEntries.filter(ze => !ze.isDirectory).map(ze => ze.entryName)
-            console.log("Entry", zipEntries.map(ze => ze.entryName))
         } else {
             const list = this.unrar!.getFileList()
             for (let fileHeader of list.fileHeaders) {
-                console.log("Foudn", fileHeader.name)
                 if (fileHeader.flags.directory) continue
                 names.push(fileHeader.name)
             }
