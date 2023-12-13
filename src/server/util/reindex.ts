@@ -18,9 +18,11 @@ class Indexer {
     dir: string
     totalFiles: number = 0
     filesProcessed: number = 0
+    startingDb: any = {}
     logger: (msg: any, ...optionalParams: any) => void = dbgLog
-    constructor(dir: string) {
+    constructor(dir: string, startingDb: any) {
         this.dir = dir
+        this.startingDb = startingDb
     }
 
     setLogger(logger: (msg: any, optionalParams: any) => void) {
@@ -67,10 +69,23 @@ class Indexer {
         this.logger(`Processed ${this.filesProcessed} / ${this.totalFiles}: ${name}`)
     }
 
+    cached(curPath: string, name: string) {
+        const parts = [...curPath.split("/"), name]
+        let fileEntry = this.startingDb
+        while (parts.length > 0) {
+            const part = parts.shift()
+            if (!part) return undefined
+            fileEntry = fileEntry.files.find((f: any) => f.name === part)
+            if (!fileEntry) return undefined
+            if (fileEntry.type === "comic" || fileEntry.type === "book") return fileEntry
+        }
+        return undefined
+    }
+
     async recursivelyFetchFiles(curPath: string, name: string): Promise<Directory | null> {
         if (IGNORED.includes(name)) return null
         const absPath = path.join(MAIN_PATH, curPath)
-        this.logger("Enter", absPath)
+        this.logger("Enter " + absPath)
         let files = await fs.readdir(absPath)
         let directory: Directory = { name, type: "directory", files: [] }
         const thumbsPath = path.join(META_PATH, curPath)
@@ -78,7 +93,6 @@ class Indexer {
             await fs.mkdir(thumbsPath, { recursive: true })
         }
         for (let file of files) {
-            await new Promise(r => setTimeout(r, 500))
             const filePath = path.join(curPath, file)
             const absFilePath = path.join(MAIN_PATH, filePath)
             let stat = await fs.stat(absFilePath)
@@ -116,6 +130,14 @@ class Indexer {
                 this.fileProcessed(file)
                 directory.files.push({ type: "book", name: file, valid })
             } else if (file.toLowerCase().endsWith(".cbz") || file.toLocaleLowerCase().endsWith(".cbr")) {
+                let cached = this.cached(curPath, file)
+                if (cached) {
+                    this.logger("Already Processed", file)
+                    this.fileProcessed(file)
+                    directory.files.push(cached)
+                    continue
+                }
+                console.log("Need to process", file)
                 let valid = true
                 let numPages = 0
                 try {
@@ -150,8 +172,12 @@ export type Logger = (msg: any, optionalParams?: any) => void
 
 
 export async function writeIndex(logger?: Logger) {
-
-    const indexer = new Indexer(MAIN_PATH)
+    let startingDB = {}
+    const dbPath = path.join(META_PATH, "db.json")
+    if (fsDirect.existsSync(dbPath)) {
+        startingDB = JSON.parse((await fs.readFile(dbPath)).toString())
+    }
+    const indexer = new Indexer(MAIN_PATH, startingDB)
     if (logger) indexer.setLogger(logger)
     await indexer.init()
     let contents = await indexer.buildIndex()

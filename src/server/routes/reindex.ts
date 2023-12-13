@@ -15,7 +15,6 @@ export default async function reindex(
     res.setHeader('Transfer-Encoding', 'chunked');
     res.setHeader('Connection', 'keep-alive');
     const contents = await writeIndex((msg) => {
-        console.log("Message", msg)
         res.write(msg)
         res.write("<br/>")
     })
