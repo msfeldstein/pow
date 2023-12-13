@@ -152,7 +152,6 @@ export default function View() {
     const [metadata, setMetadata] = useState<{ numPages: number } | null>(null)
     useEffect(function fetchDirectory() {
         const file = new URL(document.location.href).searchParams.get('file')
-        console.log("Fetching prep")
         fetch(`/api/prep?file=${encodeURIComponent(file!)}`)
             .then((res) => res.json())
             .then((data) => { console.log("Got prep", data); setMetadata(data) })

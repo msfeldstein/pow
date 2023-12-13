@@ -8,7 +8,7 @@ import page from "./routes/page";
 import staticRequest from "./routes/staticRequest";
 
 const app = express();
-console.log("VERSION 2")
+console.log("VERSION 3")
 
 app.get("/api/reindex", reindex)
 app.get("/api/prep", prep)

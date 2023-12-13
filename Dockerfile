@@ -1,7 +1,7 @@
-FROM node:lts-bookworm-slim as builder
+FROM --platform="linux/amd64" node:lts-bookworm-slim as builder
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install --production
+RUN npm install
 COPY . .
 RUN npm run build
 
