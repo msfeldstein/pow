@@ -17,6 +17,25 @@ app.get("/api/thumb", thumb)
 app.get("/api/page", page)
 app.get("/api/staticRequest", staticRequest)
 
+
+app.get('/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Transfer-Encoding', 'chunked');
+
+  const sendChunk = () => {
+    const data = `Data: ${new Date().toLocaleTimeString()}<br>`;
+    res.write(data);
+
+    if (false) {
+      res.end();
+    } else {
+      setTimeout(sendChunk, 1000); // Send a chunk every second
+    }
+  };
+
+  sendChunk();
+});
+
 // fs.watch(MAIN_PATH, { recursive: true }, (e, filename) => {
 //   if (!filename) return
 //   if (e === "rename") {

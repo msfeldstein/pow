@@ -7,7 +7,8 @@
     "start": "NODE_ENV=production ts-node src/server/main.ts",
     "build": "vite build",
     "docker-test": "docker run --rm -it $(docker build -q .)",
-    "reindex": "ts-node src/server/actions/reindex.ts"
+    "reindex": "ts-node src/server/actions/reindex.ts",
+    "docker-deploy": "docker build  -t msfeldstein/pow . && docker push msfeldstein/pow"
   },
   "dependencies": {
     "@react-spring/web": "^9.7.3",

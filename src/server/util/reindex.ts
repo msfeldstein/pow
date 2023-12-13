@@ -18,8 +18,13 @@ class Indexer {
     dir: string
     totalFiles: number = 0
     filesProcessed: number = 0
+    logger: (msg: any, ...optionalParams: any) => void = dbgLog
     constructor(dir: string) {
         this.dir = dir
+    }
+
+    setLogger(logger: (msg: any, optionalParams: any) => void) {
+        this.logger = logger
     }
 
     async init() {
@@ -49,18 +54,23 @@ class Indexer {
 
     async buildIndex() {
         this.filesProcessed = 0
-        return await this.recursivelyFetchFiles("", "~")
+        this.logger("Starting to write index")
+        const startTime = performance.now()
+        let index = await this.recursivelyFetchFiles("", "~")
+        const totalTime = Math.floor(performance.now() - startTime) / 1000
+        this.logger(`Reindexed in ${totalTime}s`)
+        return index
     }
 
     fileProcessed(name: string) {
         this.filesProcessed++
-        console.log(`Processed ${this.filesProcessed} / ${this.totalFiles}: ${name}`)
+        this.logger(`Processed ${this.filesProcessed} / ${this.totalFiles}: ${name}`)
     }
 
     async recursivelyFetchFiles(curPath: string, name: string): Promise<Directory | null> {
         if (IGNORED.includes(name)) return null
         const absPath = path.join(MAIN_PATH, curPath)
-        dbgLog("Enter", absPath)
+        this.logger("Enter", absPath)
         let files = await fs.readdir(absPath)
         let directory: Directory = { name, type: "directory", files: [] }
         const thumbsPath = path.join(META_PATH, curPath)
@@ -68,6 +78,7 @@ class Indexer {
             await fs.mkdir(thumbsPath, { recursive: true })
         }
         for (let file of files) {
+            await new Promise(r => setTimeout(r, 500))
             const filePath = path.join(curPath, file)
             const absFilePath = path.join(MAIN_PATH, filePath)
             let stat = await fs.stat(absFilePath)
@@ -86,7 +97,7 @@ class Indexer {
                     const coverPath = names.find(n => n.includes("cover"))
                     if (!coverPath) {
                         valid = false
-                        dbgLog("NO COVER FOR", file)
+                        console.error("NO COVER FOR", file)
                     } else {
 
                         const firstPage = archive.extract(coverPath)
@@ -135,10 +146,13 @@ class Indexer {
     }
 }
 
+export type Logger = (msg: any, optionalParams?: any) => void
 
 
-export async function writeIndex() {
+export async function writeIndex(logger?: Logger) {
+
     const indexer = new Indexer(MAIN_PATH)
+    if (logger) indexer.setLogger(logger)
     await indexer.init()
     let contents = await indexer.buildIndex()
     await fs.writeFile(path.join(META_PATH, "db.json"), JSON.stringify(contents, null, 2))
