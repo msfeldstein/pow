@@ -5,6 +5,8 @@ import { useSpring, animated } from '@react-spring/web'
 import { useGesture } from '@use-gesture/react'
 import { GridLoader } from 'react-spinners'
 import { BsArrowsFullscreen, BsArrowsAngleContract } from "react-icons/bs";
+import { useUserData } from './UserData'
+import { useShallow } from 'zustand/react/shallow'
 
 function Page({ file, index, x }: { file: string, index: number, x: number }) {
     return <div className={styles.carouselItem} style={{ left: x }} key={index}>
@@ -58,12 +60,13 @@ function Overlay({ file, index, hideOverlay, visible }: { file: string, index: n
     </div>
 }
 
-function Carousel({ file, numPages }: { file: string, numPages: number }) {
+function Carousel({ file, numPages, onSetPage }: { file: string, numPages: number, onSetPage: (page: number) => void }) {
     const [showOverlay, setShowOverlay] = useState(false)
     const hideOverlay = useCallback(() => setShowOverlay(false), [])
     const savedPage = localStorage.getItem(currentPageKey(file))
     const [index, setIndex] = useState(savedPage ? Math.max(0, parseInt(savedPage)) : 0)
     useEffect(() => {
+        onSetPage(index)
         localStorage.setItem(currentPageKey(file), index.toString())
     }, [index])
     const swipeIndex = useRef(0)
@@ -149,6 +152,9 @@ function Spinner() {
 }
 
 export default function View() {
+    const file = new URL(document.location.href).searchParams.get('file')
+    const setReadState = useUserData().setStateForPath
+
     const [metadata, setMetadata] = useState<{ numPages: number } | null>(null)
     useEffect(function fetchDirectory() {
         const file = new URL(document.location.href).searchParams.get('file')
@@ -158,11 +164,20 @@ export default function View() {
             .catch((err) => console.error(err))
     }, [])
 
+    const onSetPage = (page: number) => {
+        setReadState(file!, {
+            currentPage: page,
+            totalPages: metadata!.numPages,
+            finished: page === metadata!.numPages - 1,
+            lastReadTime: new Date().getTime()
+        })
+    }
+
     if (!metadata) {
         return <Spinner />
     }
 
-    const file = new URL(document.location.href).searchParams.get('file')
+    console.log("FILE", file)
     if (!file)
         return <div>No file</div>
 
@@ -170,7 +185,7 @@ export default function View() {
     return (
         <>
             <main className={styles.main}>
-                <Carousel file={file} numPages={metadata.numPages} />
+                <Carousel file={file} numPages={metadata.numPages} onSetPage={onSetPage} />
             </main>
         </>
     )

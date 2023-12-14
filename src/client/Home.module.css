@@ -27,10 +27,16 @@
     padding-bottom: 30px;
 }
 
+.CardGrid::after {
+    content: "";
+    width: 200px;
+}
+
 .Card {
     width: 200px;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .divider {
@@ -44,4 +50,17 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.ProgressBar {
+    width: 100%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    position: absolute;
+    bottom: 0;
+}
+
+.ProgressBar .Progress {
+    background-color: #F8B631;
+    height: 100%;
 }

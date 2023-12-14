@@ -1,9 +1,11 @@
 import styles from './Home.module.css'
 import { Book, Comic, Directory } from '../types'
 import { useEffect, useState } from 'react'
+import { useUserData } from './UserData'
+import ComicCard from './ComicCard'
 
 function pathFromHash() {
-  return window.location.hash.substring(1).split('/').map(part => decodeURIComponent(part)) || []
+  return window.location.hash.substring(1).split('/').filter(p => p.length > 0).map(part => decodeURIComponent(part)) || []
 }
 
 export default function Home() {
@@ -20,6 +22,7 @@ export default function Home() {
   // Update the location as the hash changes (pressing the back button)
   useEffect(() => {
     const hashChange = () => {
+      console.log("Path from hash", pathFromHash())
       setPath(pathFromHash())
     }
     window.addEventListener("hashchange", hashChange)
@@ -60,20 +63,22 @@ export default function Home() {
   }
   // find the object in db that matches the path
   let dir = db
+  console.log({ path })
   for (const p of path) {
     if (!dir || !dir.files) {
+      console.log("Dir is db")
       dir = db
       setPath([])
       break
     }
     dir = dir.files.find((f) => f.name === p) as Directory
   }
-
+  console.log({ dir })
   const upButton = path.length > 0 ? <span onClick={up}> .. </span> : null
 
-  const folders = dir.files.filter((f) => f.type === 'directory')
-  const comics = dir.files.filter((f) => f.type === 'comic' && f.valid)
-  const books = dir.files.filter(f => f.type === 'book')
+  const folders = dir.files.filter((f) => f.type === 'directory') as Directory[]
+  const comics = dir.files.filter((f) => f.type === 'comic' && f.valid) as Comic[]
+  const books = dir.files.filter(f => f.type === 'book') as Book[]
 
   const divider = folders.length > 0 && comics.length > 0 ? <div className={styles.divider}></div> : null
 
@@ -94,7 +99,7 @@ export default function Home() {
         </div>
         <div className={styles.CardGrid}>
           {comics.map((file) => {
-            return (<div key={file.name} className={styles.Card} onClick={e => nav(file)}><img alt="" width="200" src={`/api/thumb?dir=${encodeURIComponent([...path].join("/"))}&file=${encodeURIComponent(file.name)}`} /></div>)
+            return (<ComicCard path={path} key={file.name} file={file} nav={nav} />)
           })}
         </div>
       </main>
