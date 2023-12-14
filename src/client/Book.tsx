@@ -15,14 +15,6 @@ export default function BookView() {
         setLocation(epubcifi)
     }
 
-    const [sendState, setSendState] = useState<"idle" | "sending" | "sent" | "error">("idle")
-    const kindleLabel = {
-        "idle": "Send to kindle",
-        "sending": "Sending to kindle",
-        "sent": "Sent to kindle",
-        "error": "Error sending to kindle"
-    }[sendState]
-
     return (
         <div style={{ height: '100vh' }}>
             <div className={styles.topbar}>
