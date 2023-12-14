@@ -1,8 +1,8 @@
 import styles from './Home.module.css'
 import { Book, Comic, Directory } from '../types'
 import { useEffect, useState } from 'react'
-import { useUserData } from './UserData'
 import ComicCard from './ComicCard'
+import Recents from './Recents'
 
 function pathFromHash() {
   return window.location.hash.substring(1).split('/').filter(p => p.length > 0).map(part => decodeURIComponent(part)) || []
@@ -81,11 +81,13 @@ export default function Home() {
   const books = dir.files.filter(f => f.type === 'book') as Book[]
 
   const divider = folders.length > 0 && comics.length > 0 ? <div className={styles.divider}></div> : null
-
+  const recents = path.length === 0 ? <Recents /> : null
+  const breadcrumbs = path.length > 0 ? <h1 className={styles.title}>{upButton}{dir.name} </h1> : null
   return (
     <>
       <main className={styles.main}>
-        <h1 className={styles.title}>{upButton}{dir.name} </h1>
+        {recents}
+        {breadcrumbs}
         <div className={styles.DirectoryList}>
           {folders.map((file) => {
             return (<div key={file.name} className={styles.DirectoryItem} onClick={e => nav(file)}>{file.name}</div>)
