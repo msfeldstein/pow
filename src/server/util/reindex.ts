@@ -12,8 +12,6 @@ const dbgLog = function (msg: any, optionalParams: any) {
     console.log(msg, optionalParams)
 }
 
-
-
 class Indexer {
     dir: string
     totalFiles: number = 0
@@ -89,7 +87,6 @@ class Indexer {
     }
 
     collect3Covers(curPath: string, directory: Directory): string[] {
-        console.log("Entering collect", curPath, directory)
         let thumbnails: string[] = []
         let subdirectories: Directory[] = []
         // Breadth first search
@@ -97,7 +94,6 @@ class Indexer {
             if (file.type === "directory") {
                 subdirectories.push(file)
             } else if (file.type === "comic") {
-                console.log("Found comic", file.name)
                 thumbnails.push(this.thumbPathForComic(curPath, file.name))
             }
         }
@@ -107,7 +103,6 @@ class Indexer {
                 if (thumbnails.length >= 3) break
             }
         }
-        console.log("Found", thumbnails.length, "thumbnails for ", curPath, directory.name)
         return thumbnails.slice(0, 3)
     }
 
@@ -133,7 +128,6 @@ class Indexer {
                 if (subdirectory) {
                     directory.files.push(subdirectory)
                 }
-                console.log("Lets get thumbnails for ", directory.name)
 
             } else if (file.toLowerCase().endsWith(".epub")) {
                 let valid = true
