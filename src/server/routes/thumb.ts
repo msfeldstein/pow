@@ -13,9 +13,7 @@ export default async function thumb(
     res: Response<Buffer | string>
 ) {
     try {
-        console.log("Reading", path.join(META_PATH, req.query.dir as string, req.query.file as string, "thumb.png"))
         let contents = await fs.readFile(path.join(META_PATH, req.query.dir as string, req.query.file as string, "thumb.png"))
-        console.log("Contents", contents)
         res.setHeader('Content-Type', 'image/jpg')
         res.status(200).send(contents)
     } catch (e) {
