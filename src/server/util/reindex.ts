@@ -1,6 +1,6 @@
 import path from "path"
-import { MAIN_PATH, META_PATH } from "../../paths"
-import { Directory } from "../../types"
+import { DB_PATH, MAIN_PATH, META_PATH } from "../../paths"
+import { Directory, File } from "../../types"
 import fs from 'fs/promises'
 import fsDirect from 'fs'
 import { Archive } from "./archive"
@@ -19,6 +19,7 @@ class Indexer {
     totalFiles: number = 0
     filesProcessed: number = 0
     startingDb: any = {}
+
     logger: (msg: any, ...optionalParams: any) => void = dbgLog
     constructor(dir: string, startingDb: any) {
         this.dir = dir
@@ -58,7 +59,7 @@ class Indexer {
         this.filesProcessed = 0
         this.logger("Starting to write index")
         const startTime = performance.now()
-        let index = await this.recursivelyFetchFiles("", "~")
+        let index = await this.recursivelyFetchFiles("/")
         const totalTime = Math.floor(performance.now() - startTime) / 1000
         this.logger(`Reindexed in ${totalTime}s`)
         return index
@@ -75,6 +76,7 @@ class Indexer {
         while (parts.length > 0) {
             const part = parts.shift()
             if (!part) return undefined
+            if (!fileEntry.files) return undefined
             fileEntry = fileEntry.files.find((f: any) => f.name === part)
             if (!fileEntry) return undefined
             if (fileEntry.type === "comic" || fileEntry.type === "book") return fileEntry
@@ -82,23 +84,57 @@ class Indexer {
         return undefined
     }
 
-    async recursivelyFetchFiles(curPath: string, name: string): Promise<Directory | null> {
-        if (IGNORED.includes(name)) return null
+    thumbPathForComic(curPath: string, file: string) {
+        return path.join(curPath, file)
+    }
+
+    collect3Covers(curPath: string, directory: Directory): string[] {
+        console.log("Entering collect", curPath, directory)
+        let thumbnails: string[] = []
+        let subdirectories: Directory[] = []
+        // Breadth first search
+        for (let file of directory.files) {
+            if (file.type === "directory") {
+                subdirectories.push(file)
+            } else if (file.type === "comic") {
+                console.log("Found comic", file.name)
+                thumbnails.push(this.thumbPathForComic(curPath, file.name))
+            }
+        }
+        if (thumbnails.length < 3 && subdirectories.length > 0) {
+            for (let subdirectory of subdirectories) {
+                thumbnails = thumbnails.concat(this.collect3Covers(path.join(curPath, subdirectory.name), subdirectory))
+                if (thumbnails.length >= 3) break
+            }
+        }
+        console.log("Found", thumbnails.length, "thumbnails for ", curPath, directory.name)
+        return thumbnails.slice(0, 3)
+    }
+
+    async recursivelyFetchFiles(curPath: string): Promise<Directory | null> {
         const absPath = path.join(MAIN_PATH, curPath)
+
         this.logger("Enter " + absPath)
         let files = await fs.readdir(absPath)
-        let directory: Directory = { name, type: "directory", files: [] }
+        let directory: Directory = { name: curPath.split("/").pop()!, type: "directory", files: [], thumbnails: [] }
+
         const thumbsPath = path.join(META_PATH, curPath)
         if (!fsDirect.existsSync(thumbsPath)) {
             await fs.mkdir(thumbsPath, { recursive: true })
         }
         for (let file of files) {
+            if (IGNORED.includes(file)) continue
             const filePath = path.join(curPath, file)
             const absFilePath = path.join(MAIN_PATH, filePath)
             let stat = await fs.stat(absFilePath)
-            if (stat.isDirectory() && !file.startsWith("__") && !file.startsWith(".")) {
-                const subdirectory = await this.recursivelyFetchFiles(filePath, file)
-                if (subdirectory) directory.files.push(subdirectory)
+            if (stat.isDirectory() && !file.startsWith("__") && !file.startsWith(".") && !IGNORED.includes(file)) {
+
+                const subdirectory = await this.recursivelyFetchFiles(filePath)
+                if (subdirectory) {
+                    directory.files.push(subdirectory)
+                }
+                console.log("Lets get thumbnails for ", directory.name)
+
             } else if (file.toLowerCase().endsWith(".epub")) {
                 let valid = true
                 try {
@@ -137,7 +173,6 @@ class Indexer {
                     directory.files.push(cached)
                     continue
                 }
-                console.log("Need to process", file)
                 let valid = true
                 let numPages = 0
                 try {
@@ -164,6 +199,9 @@ class Indexer {
                 directory.files.push({ type: "comic", name: file, valid, numPages })
             }
         }
+
+        // Grab the thumbnails afterward so we have all the subdirectorys processed and files array filled in
+        directory.thumbnails = this.collect3Covers(path.join(curPath), directory)
         return directory
     }
 }
@@ -173,9 +211,8 @@ export type Logger = (msg: any, optionalParams?: any) => void
 
 export async function writeIndex(logger?: Logger) {
     let startingDB = {}
-    const dbPath = path.join(META_PATH, "db.json")
-    if (fsDirect.existsSync(dbPath)) {
-        startingDB = JSON.parse((await fs.readFile(dbPath)).toString())
+    if (fsDirect.existsSync(DB_PATH)) {
+        startingDB = JSON.parse((await fs.readFile(DB_PATH)).toString())
     }
     const indexer = new Indexer(MAIN_PATH, startingDB)
     if (logger) indexer.setLogger(logger)

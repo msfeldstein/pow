@@ -15,6 +15,7 @@ export type Directory = {
     name: string
     type: "directory"
     files: (Directory | Comic | Book)[]
+    thumbnails: string[]
 }
 
 export type File = Comic | Book | Directory

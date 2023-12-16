@@ -8,3 +8,5 @@ dotenv.config();
 
 export const MAIN_PATH = process.env.ROOT || "/pow-data";
 export const META_PATH = process.env.META || "/pow-meta";
+
+export const DB_PATH = path.join(META_PATH, "db.json")

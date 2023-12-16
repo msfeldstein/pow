@@ -3,6 +3,7 @@ import { Book, Comic, Directory } from '../types'
 import { useEffect, useState } from 'react'
 import ComicCard from './ComicCard'
 import Recents from './Recents'
+import DirectoryCard from './DirectoryCard'
 
 function pathFromHash() {
   return window.location.hash.substring(1).split('/').filter(p => p.length > 0).map(part => decodeURIComponent(part)) || []
@@ -63,17 +64,14 @@ export default function Home() {
   }
   // find the object in db that matches the path
   let dir = db
-  console.log({ path })
   for (const p of path) {
     if (!dir || !dir.files) {
-      console.log("Dir is db")
       dir = db
       setPath([])
       break
     }
     dir = dir.files.find((f) => f.name === p) as Directory
   }
-  console.log({ dir })
   const upButton = path.length > 0 ? <span onClick={up}> .. </span> : null
 
   const folders = dir.files.filter((f) => f.type === 'directory') as Directory[]
@@ -89,9 +87,7 @@ export default function Home() {
         {recents}
         {breadcrumbs}
         <div className={styles.DirectoryList}>
-          {folders.map((file) => {
-            return (<div key={file.name} className={styles.DirectoryItem} onClick={e => nav(file)}>{file.name}</div>)
-          })}
+          {folders.map((file) => <DirectoryCard nav={nav} key={file.name} directory={file} />)}
         </div>
         {divider}
         <div className={styles.CardGrid}>
