@@ -22,13 +22,15 @@ export default function Recents() {
     return <div className={styles.Recents}>
         <h1>Recents</h1>
         <div className={styles.RecentsRow}>
-
             {mostRecent.map((entry) => {
+                const onClick = () => {
+                    window.location.href = `/view?file=${encodeURIComponent(entry[0])}`
+                }
                 const [book, readState] = entry
                 const path = book.split("/")
                 const bookName = book.split("/").pop()?.split(".")[0]!
                 const issue = parseNumberOrUndefined(bookName.split(" ").pop()!)
-                return <div key={book} className={styles.RecentsEntry}>
+                return <div onClick={onClick} key={book} className={styles.RecentsEntry}>
                     <div className={styles.CoverStack}>
                         <img alt="" src={`/api/thumb?dir=${encodeURIComponent([...path].join("/"))}&file=`} />
                         <ProgressBar readState={readState} />
