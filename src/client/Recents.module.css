@@ -7,6 +7,10 @@
     flex-direction: row;
     overflow: scroll;
     scrollbar-width: none;
+    width: calc(100vw - 64px);
+    margin-left: calc(-32px);
+    padding-left: 32px;
+    padding-right: 32px;
 }
 
 .RecentsRow::-webkit-scrollbar {
@@ -32,6 +36,7 @@
     height: 280px;
     border-radius: 8px;
     overflow: hidden;
+    width: 200px;
 }
 
 
