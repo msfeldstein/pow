@@ -1,0 +1,45 @@
+.Recents {
+    margin-bottom: 32px;
+}
+
+.RecentsRow {
+    display: flex;
+    flex-direction: row;
+    overflow: scroll;
+    scrollbar-width: none;
+}
+
+.RecentsRow::-webkit-scrollbar {
+    display: none;
+}
+
+
+.RecentsEntry img {
+    width: 200px;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.RecentsEntry {
+    flex-basis: 220px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.CoverStack {
+    position: relative;
+    height: 280px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+
+.RecentsTitle {
+    font-size: 16px;
+    padding: 4px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 200px;
+}
