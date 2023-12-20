@@ -1,5 +1,11 @@
+@import "./_vars.css";
+
 .Recents {
+    color: var(--light-color);
     margin-bottom: 32px;
+    background-color: var(--dark-color);
+    box-shadow: 0 4px 2px -2px gray;
+    padding: 0 24px 24px 24px
 }
 
 .RecentsRow {
@@ -11,6 +17,7 @@
     margin-left: calc(-32px);
     padding-left: 32px;
     padding-right: 32px;
+    padding-top: 8px;
 }
 
 .RecentsRow::-webkit-scrollbar {
@@ -19,24 +26,25 @@
 
 
 .RecentsEntry img {
-    width: 200px;
-    height: 280px;
+    width: 100px;
+    height: 150px;
     object-fit: cover;
     border-radius: 8px;
 }
 
 .RecentsEntry {
-    flex-basis: 220px;
+    flex-basis: 120px;
     flex-grow: 0;
     flex-shrink: 0;
 }
 
 .CoverStack {
     position: relative;
-    height: 280px;
+    height: 150px;
     border-radius: 8px;
     overflow: hidden;
-    width: 200px;
+    width: 100px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
 }
 
 
@@ -45,7 +53,7 @@
     padding: 4px;
     white-space: nowrap;
     overflow: hidden;
-    width: 200px;
+    width: 100px;
     position: relative;
     -webkit-mask-image: linear-gradient(to right, black 70%, transparent);
     mask-image: linear-gradient(to right, black 70%, transparent);

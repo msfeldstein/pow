@@ -10,6 +10,7 @@ import {
 import Home from "./Home";
 import View from "./View";
 import BookView from "./Book";
+import { DBProvider } from "./models/db";
 
 // Adjust the height of the viewport to be the same as the visible area, aka the 
 // screen size - the toolbars
@@ -40,6 +41,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <DBProvider>
+      <RouterProvider router={router} />
+    </DBProvider>
   </React.StrictMode>
 );

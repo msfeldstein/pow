@@ -1,5 +1,5 @@
 import styles from './ProgressBar.module.css'
-import { ReadState } from './UserData'
+import { ReadState } from './models/UserData'
 
 export default function ProgressBar({ readState }: { readState: ReadState | undefined }) {
     if (!readState) return null

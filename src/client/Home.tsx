@@ -1,16 +1,17 @@
 import styles from './Home.module.css'
 import { Book, Comic, Directory } from '../types'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import ComicCard from './ComicCard'
 import Recents from './Recents'
 import DirectoryCard from './DirectoryCard'
+import { DBContext } from './models/db'
 
 function pathFromHash() {
   return window.location.hash.substring(1).split('/').filter(p => p.length > 0).map(part => decodeURIComponent(part)) || []
 }
 
 export default function Home() {
-  const [db, setDb] = useState<Directory | null>(null)
+  const db = useContext(DBContext)
   const [path, setPath] = useState<string[]>([])
 
   // Grab the initial location from the hash
@@ -32,13 +33,6 @@ export default function Home() {
     }
   }, [])
 
-  // Fetch the full db list
-  useEffect(function fetchDirectory() {
-    fetch('/api/list')
-      .then((res) => res.json())
-      .then((data) => setDb(data))
-      .catch((err) => console.error(err))
-  }, [])
 
 
   if (!db) {
@@ -86,20 +80,22 @@ export default function Home() {
       <main className={styles.main}>
         {recents}
         {breadcrumbs}
-        <div className={styles.DirectoryList}>
-          {folders.map((file) => <DirectoryCard nav={nav} key={file.name} directory={file} />)}
-        </div>
+        {folders.length > 0 && <div className={styles.DirectoryContainer} ><h1>Folders</h1>
+          <div className={styles.DirectoryList}>
+            {folders.map((file) => <DirectoryCard nav={nav} key={file.name} directory={file} />)}
+          </div>
+        </div>}
         {divider}
-        <div className={styles.CardGrid}>
+        {books.length > 0 && <div className={styles.CardGrid}>
           {books.map((file) => {
             return (<div key={file.name} className={styles.Card} onClick={e => nav(file)}><img alt="" width="200" src={`/api/thumb?dir=${encodeURIComponent([...path].join("/"))}&file=${encodeURIComponent(file.name)}`} />{file.name}</div>)
           })}
-        </div>
-        <div className={styles.CardGrid}>
+        </div>}
+        {comics.length > 0 && <div className={styles.CardGrid}>
           {comics.map((file) => {
             return (<ComicCard path={path} key={file.name} file={file} nav={nav} />)
           })}
-        </div>
+        </div>}
       </main>
     </>
   )

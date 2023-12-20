@@ -1,0 +1,8 @@
+:root {
+    --card-width: 200px;
+    --card-height: 300px;
+    --grid-spacing: 40px;
+
+    --dark-color: #1e1e1e;
+    --light-color: #f5f5f5;
+}

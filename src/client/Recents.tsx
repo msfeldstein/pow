@@ -1,4 +1,4 @@
-import { ReadState, useUserData } from "./UserData"
+import { ReadState, useUserData } from "./models/UserData"
 import styles from "./Recents.module.css"
 import ProgressBar from "./ProgressBar"
 
@@ -19,8 +19,9 @@ export default function Recents() {
     const mostRecent = Object.keys(userData.books)
         .map(key => [key, userData.books[key]] as [string, ReadState])
         .sort((a, b) => b[1].lastReadTime - a[1].lastReadTime)
+    if (mostRecent.length == 0) return null
     return <div className={styles.Recents}>
-        <h1>Recents</h1>
+        <h1>Now Reading</h1>
         <div className={styles.RecentsRow}>
             {mostRecent.map((entry) => {
                 const onClick = () => {
@@ -41,6 +42,5 @@ export default function Recents() {
                     </div>
                 </div>
             })}</div>
-        <hr />
     </div>
 }

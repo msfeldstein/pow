@@ -3,19 +3,6 @@
     flex-direction: column;
     height: 100%;
     color: white;
-    padding: 32px;
-}
-
-.DirectoryList {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
-
-.DirectoryItem {
-    font-size: 16px;
-    width: 220px;
 }
 
 .CardGrid {
@@ -23,12 +10,7 @@
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 30px;
-    padding-bottom: 30px;
-}
-
-.CardGrid::after {
-    content: "";
-    width: 200px;
+    padding: 30px;
 }
 
 .Card {
@@ -36,6 +18,16 @@
     display: flex;
     flex-direction: column;
     position: relative;
+}
+
+.Card img {
+    height: var(--card-height);
+    width: var(--card-width);
+    object-fit: cover;
+    border-radius: 10px;
+    top: 0;
+    left: 0;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
 }
 
 .divider {
@@ -51,16 +43,36 @@
     justify-content: space-between;
 }
 
+.DirectoryContainer {
+    padding: 32px;
+
+}
+
+
+.DirectoryList {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    justify-items: center;
+}
+
+.DirectoryItem {
+    font-size: 16px;
+    width: calc(var(--card-width) + var(--grid-spacing));
+    margin-bottom: 32px;
+    padding-left: 10px;
+}
+
+
 .DirectoryImageStack {
-    width: 220px;
-    height: 258px;
     position: relative;
+    height: calc(var(--card-height) + 8px);
 }
 
 
 .DirectoryImageStack img {
-    height: 250px;
-    width: 180px;
+    height: var(--card-height);
+    width: var(--card-width);
     object-fit: cover;
     border-radius: 10px;
     position: absolute;

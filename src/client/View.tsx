@@ -1,12 +1,15 @@
 import styles from './View.module.css'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { useRef } from 'react'
 import { useSpring, animated } from '@react-spring/web'
 import { useGesture } from '@use-gesture/react'
 import { GridLoader } from 'react-spinners'
 import { BsArrowsFullscreen, BsArrowsAngleContract } from "react-icons/bs";
-import { useUserData } from './UserData'
+import { useUserData } from './models/UserData'
 import { useShallow } from 'zustand/react/shallow'
+import { DBContext, dir, filename, findSeries } from './models/db'
+import { Comic } from '../types'
+import path from 'path'
 
 function Page({ file, index, x }: { file: string, index: number, x: number }) {
     return <div className={styles.carouselItem} style={{ left: x }} key={index}>
@@ -151,9 +154,37 @@ function Spinner() {
     </div>
 }
 
+function NextIssueCard({ comic, dir }: { dir: string, comic?: Comic }) {
+    if (!comic) return null
+    return <div className={styles.NextIssueCard} onClick={() => {
+        window.location.href = `/view?file=${encodeURIComponent(dir + "/" + comic.name)}`
+    }}>
+        <img alt="" src={`/api/thumb?dir=${dir}&file=${encodeURIComponent(comic.name)}`} />
+        <div className={styles.NextIssueCardTitle}>{comic.name}</div>
+    </div>
+}
+
+function FinalPageOverlay({ visible, file }: { visible: boolean, file: string }) {
+    const db = useContext(DBContext)
+    if (!db) return null
+    const series = findSeries(db, file)
+    const name = filename(file)
+    console.log({ series })
+    const currentIndexInSeries = series?.files.findIndex((f) => f.name === name)
+
+    const nextIssue = series?.files[currentIndexInSeries! + 1] as Comic | undefined
+    console.log({ nextIssue, currentIndexInSeries })
+
+
+    let className = styles.FinalPageOverlay
+    if (!visible) className += " " + styles.hidden
+    return <div className={className}><NextIssueCard dir={dir(file)} comic={nextIssue}></NextIssueCard></div>
+}
+
 export default function View() {
     const file = new URL(document.location.href).searchParams.get('file')
-    const setReadState = useUserData().setStateForPath
+    const { setStateForPath, stateForPath } = useUserData()
+    const readState = stateForPath(file!)
 
     const [metadata, setMetadata] = useState<{ numPages: number } | null>(null)
     useEffect(function fetchDirectory() {
@@ -165,7 +196,7 @@ export default function View() {
     }, [])
 
     const onSetPage = (page: number) => {
-        setReadState(file!, {
+        setStateForPath(file!, {
             currentPage: page,
             totalPages: metadata!.numPages,
             finished: page === metadata!.numPages - 1,
@@ -186,6 +217,7 @@ export default function View() {
         <>
             <main className={styles.main}>
                 <Carousel file={file} numPages={metadata.numPages} onSetPage={onSetPage} />
+                <FinalPageOverlay file={file} visible={!!readState?.finished} />
             </main>
         </>
     )

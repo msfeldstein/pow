@@ -1,6 +1,6 @@
 import { Comic } from '../types'
 import styles from './Home.module.css'
-import { useUserData } from './UserData'
+import { useUserData } from './models/UserData'
 import ProgressBar from './ProgressBar'
 
 export default function ComicCard({ path, file, nav }: { path: string[], file: Comic, nav: (comic: Comic) => void }) {
