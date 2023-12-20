@@ -6,10 +6,8 @@ import { useGesture } from '@use-gesture/react'
 import { GridLoader } from 'react-spinners'
 import { BsArrowsFullscreen, BsArrowsAngleContract } from "react-icons/bs";
 import { useUserData } from './models/UserData'
-import { useShallow } from 'zustand/react/shallow'
 import { DBContext, dir, filename, findSeries } from './models/db'
 import { Comic } from '../types'
-import path from 'path'
 
 function Page({ file, index, x }: { file: string, index: number, x: number }) {
     return <div className={styles.carouselItem} style={{ left: x }} key={index}>
@@ -156,12 +154,12 @@ function Spinner() {
 
 function NextIssueCard({ comic, dir }: { dir: string, comic?: Comic }) {
     if (!comic) return null
-    return <div className={styles.NextIssueCard} onClick={() => {
+    return <div className={styles.NextIssueSection}><h1>Next Issue</h1><div className={styles.NextIssueCard} onClick={() => {
         window.location.href = `/view?file=${encodeURIComponent(dir + "/" + comic.name)}`
     }}>
         <img alt="" src={`/api/thumb?dir=${dir}&file=${encodeURIComponent(comic.name)}`} />
         <div className={styles.NextIssueCardTitle}>{comic.name}</div>
-    </div>
+    </div></div>
 }
 
 function FinalPageOverlay({ visible, file }: { visible: boolean, file: string }) {
